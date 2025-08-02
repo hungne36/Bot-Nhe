@@ -24,7 +24,7 @@ def save_data(data):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 class XPCog(commands.Cog):
-    def __init__(self, self, bot):
+    def __init__(self, bot):
         self.bot = bot
 
     def ensure_user(self, data, user_id):
