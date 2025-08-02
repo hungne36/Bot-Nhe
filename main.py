@@ -40,6 +40,13 @@ async def load_cogs():
                 print(f"✅ Loaded cog: {fn}")
             except Exception as e:
                 print(f"❌ Failed loading {fn}: {e}")
+    
+    # Load rank cog if it exists
+    try:
+        await bot.load_extension("cogs.rank")
+        print("✅ Loaded cog: rank.py")
+    except Exception as e:
+        print(f"❌ Failed loading rank.py: {e}")
 
 
 

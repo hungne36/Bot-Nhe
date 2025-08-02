@@ -24,7 +24,7 @@ def save_data(data):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 class XPCog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, self, bot):
         self.bot = bot
 
     def ensure_user(self, data, user_id):
@@ -89,11 +89,11 @@ class XPCog(commands.Cog):
         # Cho phép các cog khác xử lý lệnh
         await self.bot.process_commands(message)
 
-@commands.command(name="rank")
-async def rank(self, ctx):
+    @commands.command(name="rank")
+    async def rank(self, ctx):
         from utils.xp_utils import get_level, get_xp_for_next_level, get_role_for_level, get_rank
         from utils.data_manager import read_json
-        
+
         user = ctx.author
         user_id = str(user.id)
 
