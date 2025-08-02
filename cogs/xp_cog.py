@@ -7,7 +7,7 @@ import time
 from datetime import datetime, timezone
 
 DATA_PATH = "data/user_data.json"
-COOLDOWN_SECONDS = 180
+COOLDOWN_SECONDS = 60
 
 def load_data():
     if not os.path.exists(DATA_PATH):
@@ -69,7 +69,18 @@ class XPCog(commands.Cog):
         user["last_message_ts"] = now_ts
 
         # +1 XP cho tin nhắn
+        old_level = user.get("level", 1)
         user["xp"] += 1
+        
+        # Tính level mới dựa trên XP
+        new_level = 1
+        total_xp = user["xp"]
+        while total_xp >= (50 + new_level * 25):
+            total_xp -= (50 + new_level * 25)
+            new_level += 1
+        
+        user["level"] = new_level
+        
         # Tăng bộ đếm tin nhắn hàng ngày
         user["daily_messages"] += 1
 
@@ -77,10 +88,29 @@ class XPCog(commands.Cog):
         if user["daily_messages"] >= 10 and not user["daily_bonus_claimed"]:
             user["xp"] += 25
             user["daily_bonus_claimed"] = True
+            
+            # Tính lại level sau khi nhận bonus
+            new_level = 1
+            total_xp = user["xp"]
+            while total_xp >= (50 + new_level * 25):
+                total_xp -= (50 + new_level * 25)
+                new_level += 1
+            user["level"] = new_level
+            
             try:
                 await message.channel.send(
                     f"🎁 {message.author.mention} đã hoàn thành 10 tin nhắn hôm nay, nhận thêm **25 XP**!",
                     delete_after=10
+                )
+            except:
+                pass
+
+        # Thông báo level up
+        if new_level > old_level:
+            try:
+                await message.channel.send(
+                    f"🎉 {message.author.mention} đã lên cấp {new_level}! (+{user['xp']} XP)",
+                    delete_after=15
                 )
             except:
                 pass

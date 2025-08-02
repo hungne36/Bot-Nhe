@@ -50,13 +50,22 @@ class Rank(commands.Cog):
 
         def get_xp_needed_for_next_level(self, level):
             return 50 + level * 25
+            
+        def calculate_level_from_xp(self, xp):
+            level = 1
+            remaining_xp = xp
+            while remaining_xp >= (50 + level * 25):
+                remaining_xp -= (50 + level * 25)
+                level += 1
+            return level
 
         @commands.command(name="rank")
         async def rank(self, ctx):
             user = ctx.author
             data = self.get_user_level_data(user.id)
-            level = data.get("level", 1)
             xp = data.get("xp", 0)
+            # Tính level từ XP thay vì lấy từ data
+            level = self.calculate_level_from_xp(xp)
             xp_needed = self.get_xp_needed_for_next_level(level)
             role_name = self.get_role_name_by_level(level)
             rank_pos, total_users = self.get_user_rank(user.id)
