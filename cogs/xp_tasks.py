@@ -1,3 +1,4 @@
+
 import discord
 from discord.ext import commands, tasks
 from utils.data_manager import read_json, write_json
@@ -32,7 +33,6 @@ class XPTasks(commands.Cog):
             return
 
         user_data = read_json("data/user_data.json")
-        msg_data = read_json("data/xp_messages.json")  # File đếm số tin nhắn
         log = []
 
         for uid, data in user_data.items():
@@ -40,42 +40,36 @@ class XPTasks(commands.Cog):
             if not member:
                 continue
 
-            old_level = get_level(data["xp"])
-            msg_count = msg_data.get(uid, 0)
+            old_level = get_level(data.get("xp", 0))
+            daily_messages = data.get("daily_messages", 0)
 
-            # Người không đủ 10 tin → trừ XP + tụt role
-            if msg_count < 10:
-                data["xp"] = max(0, data["xp"] - 50)
+            # Người không đủ 10 tin → trừ XP
+            if daily_messages < 10:
+                data["xp"] = max(0, data.get("xp", 0) - 50)
                 new_level = get_level(data["xp"])
-                log.append(f"🔻 {member.mention} không hoàn thành nhiệm vụ (gửi {msg_count}/10 tin) → -50 XP.")
+                log.append(f"🔻 {member.mention} không hoàn thành nhiệm vụ (gửi {daily_messages}/10 tin) → -50 XP.")
 
                 if new_level < old_level:
-                    old_role = get_level_role(old_level)
-                    new_role = get_level_role(new_level)
+                    old_role_info = get_level_role(old_level)
+                    new_role_info = get_level_role(new_level)
 
-                    if old_role:
-                        role_obj = discord.utils.get(guild.roles, name=old_role[1])
-                        if role_obj in member.roles:
+                    if old_role_info:
+                        role_obj = discord.utils.get(guild.roles, name=old_role_info[1])
+                        if role_obj and role_obj in member.roles:
                             await member.remove_roles(role_obj)
 
-                    if new_role:
-                        role_obj = discord.utils.get(guild.roles, name=new_role[1])
-                        await member.add_roles(role_obj)
-
-            # Người vừa đạt mốc level → gán role mới
-            else:
-                new_level = get_level(data["xp"])
-                if new_level > old_level and new_level % 5 == 0:
-                    role_info = get_level_role(new_level)
-                    if role_info:
-                        role_obj = discord.utils.get(guild.roles, name=role_info[1])
+                    if new_role_info:
+                        role_obj = discord.utils.get(guild.roles, name=new_role_info[1])
                         if role_obj:
                             await member.add_roles(role_obj)
-                            log.append(f"🔺 {member.mention} đã đạt cấp {new_level} → cấp vai trò {role_info[1]}.")
 
-        # Ghi lại data và reset đếm tin nhắn
+            # Reset daily data
+            data["daily_messages"] = 0
+            data["daily_bonus_claimed"] = False
+            data["last_reset_date"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        # Ghi lại data
         write_json("data/user_data.json", user_data)
-        write_json("data/xp_messages.json", {})
 
         # Gửi log thông báo
         if log:
@@ -87,7 +81,6 @@ class XPTasks(commands.Cog):
     @daily_check.before_loop
     async def before_task(self):
         await self.bot.wait_until_ready()
-
 
 async def setup(bot):
     await bot.add_cog(XPTasks(bot))
