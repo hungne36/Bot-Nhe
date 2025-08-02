@@ -90,7 +90,7 @@ class XPCog(commands.Cog):
         await self.bot.process_commands(message)
 
 @commands.command(name="rank")
-    async def rank(self, ctx):
+async def rank(self, ctx):
         from utils.xp_utils import get_level, get_xp_for_next_level, get_role_for_level, get_rank
         from utils.data_manager import read_json
         

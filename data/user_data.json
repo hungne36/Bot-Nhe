@@ -1,5 +1,22 @@
 {
   "878488497659453521": {
     "daily_claimed": true
+  },
+  "730436357838602301": {
+    "xp": 1,
+    "level": 1,
+    "balance": 0,
+    "dailyXP": 0,
+    "lastMission": "",
+    "messages": 0,
+    "items": [],
+    "lastMessage": null,
+    "lastDaily": null,
+    "lastDailyXP": null,
+    "xpBoostExpire": null,
+    "daily_messages": 1,
+    "daily_bonus_claimed": false,
+    "last_reset_date": "2025-08-02",
+    "last_message_ts": 1754112427.249605
   }
 }
