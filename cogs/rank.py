@@ -1,4 +1,3 @@
-
 import discord
 from discord.ext import commands
 import json
@@ -6,10 +5,10 @@ import os
 
 class Rank(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.data_path = "data/user_data.json"
+            self.bot = bot
+            self.data_path = "data/user_data.json"
 
-    def get_user_level_data(self, user_id):
+        def get_user_level_data(self, user_id):
         if not os.path.exists(self.data_path):
             return {"xp": 0, "level": 1}
         with open(self.data_path, "r") as f:
@@ -20,11 +19,9 @@ class Rank(commands.Cog):
         return data[user_id]
 
     def get_user_rank(self, user_id):
-        if not os.path.exists(self.data_path):
-            return None, 0
         with open(self.data_path, "r") as f:
             data = json.load(f)
-        sorted_users = sorted(data.items(), key=lambda x: (x[1].get("level", 1), x[1].get("xp", 0)), reverse=True)
+        sorted_users = sorted(data.items(), key=lambda x: (x[1]["level"], x[1]["xp"]), reverse=True)
         for index, (uid, info) in enumerate(sorted_users):
             if uid == str(user_id):
                 return index + 1, len(sorted_users)
@@ -69,11 +66,11 @@ class Rank(commands.Cog):
             description=(
                 f"Cấp độ: `{level}` | XP: `{xp} / {xp_needed}`\n"
                 f"Vai trò hiện tại: **{role_name}**\n"
-                f"Xếp hạng: `#{rank_pos}/{total_users}`" if rank_pos else f"Xếp hạng: `Chưa có/{total_users}`"
+                f"Xếp hạng: `#{rank_pos}/{total_users}`"
             ),
             color=discord.Color.green()
         )
         await ctx.send(embed=embed)
 
-async def setup(bot):
+    async def setup(bot):
     await bot.add_cog(Rank(bot))
