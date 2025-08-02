@@ -4,20 +4,20 @@
     "xp": 250
   },
   "730436357838602301": {
-    "xp": 139,
+    "xp": 145,
     "level": 6,
     "balance": 0,
-    "dailyXP": 53,
+    "dailyXP": 58,
     "lastMission": "",
-    "messages": 3,
+    "messages": 8,
     "items": [],
     "lastMessage": null,
     "lastDaily": null,
     "lastDailyXP": "2025-08-02T06:05:45.414248",
     "xpBoostExpire": "2025-08-02T07:05:45.414248",
-    "daily_messages": 7,
+    "daily_messages": 8,
     "daily_bonus_claimed": false,
     "last_reset_date": "2025-08-02",
-    "last_message_ts": 1754115604.5274513
+    "last_message_ts": 1754115789.7768726
   }
 }
