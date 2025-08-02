@@ -89,34 +89,7 @@ class XPCog(commands.Cog):
         # Cho phép các cog khác xử lý lệnh
         await self.bot.process_commands(message)
 
-    @commands.command(name="rank")
-    async def rank(self, ctx):
-        from utils.xp_utils import get_level, get_xp_for_next_level, get_role_for_level, get_rank
-        from utils.data_manager import read_json
-
-        user = ctx.author
-        user_id = str(user.id)
-
-        user_data = read_json("data/user_data.json")
-        if user_id not in user_data:
-            return await ctx.send("❌ Bạn chưa có dữ liệu XP nào.")
-
-        xp = user_data[user_id].get("xp", 0)
-        level = get_level(xp)
-        xp_needed = get_xp_for_next_level(level)
-        role_info = get_role_for_level(level)
-        rank_position, total_players = get_rank(user_id)
-
-        embed = discord.Embed(
-            title=f"📊 Rank của {user.display_name}:",
-            description=(
-                f"Cấp độ: {level} | XP: {xp} / {xp_needed}\n"
-                f"Vai trò hiện tại: {role_info['icon']} {role_info['name']}\n"
-                f"Xếp hạng: #{rank_position}/{total_players}"
-            ),
-            color=discord.Color.gold()
-        )
-        await ctx.send(embed=embed)
+    
 
 async def setup(bot):
     await bot.add_cog(XPCog(bot))
