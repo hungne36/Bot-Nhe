@@ -30,7 +30,7 @@ class Rank(commands.Cog):
         def get_role_name_by_level(self, level):
             level_roles = {
                 1: "🧍‍♂️ Dân thường",
-                5: "🌱 Người mới nổi",
+                5: "🌱 Tổ trưởng khu phố",
                 10: "🧑‍💼 Cán bộ xã",
                 15: "🎯 Chủ nhiệm CLB",
                 20: "🏛️ Quận trưởng",
@@ -72,6 +72,6 @@ class Rank(commands.Cog):
             )
             await ctx.send(embed=embed)
 
-    # Sửa ở đây:
+    # Cần đúng indent ở đây
 async def setup(bot):
         await bot.add_cog(Rank(bot))
