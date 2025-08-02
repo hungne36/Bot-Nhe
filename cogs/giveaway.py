@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 from discord import app_commands
 from datetime import datetime, timedelta, timezone
 import random
+import asyncio
 from utils.data_manager import update_balance
 
 GIVEAWAY_CHANNEL_ID = 1388725889591939263

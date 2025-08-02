@@ -76,47 +76,48 @@ async def on_message(message):
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
     try:
-        # Skip if interaction is already handled by commands or if response is already done
-        if interaction.type == discord.InteractionType.application_command or interaction.response.is_done():
+        # Only handle component interactions (buttons, selects, etc.)
+        # Skip application commands as they're handled by the command tree
+        if interaction.type != discord.InteractionType.component:
             return
             
-        if interaction.type == discord.InteractionType.component:
-            custom_id = interaction.data.get("custom_id")
+        # Skip if already responded to
+        if interaction.response.is_done():
+            return
             
-            # Check if interaction is expired or invalid
-            if not custom_id:
-                await interaction.response.send_message("❌ Tương tác không hợp lệ.", ephemeral=True)
-                return
+        custom_id = interaction.data.get("custom_id")
+        
+        # Check if interaction is expired or invalid
+        if not custom_id:
+            await interaction.response.send_message("❌ Tương tác không hợp lệ.", ephemeral=True)
+            return
 
-            if custom_id == "taixiu_menu":
-                from cogs.taixiu import TaiXiuView
-                await interaction.response.edit_message(content="🎲 Chọn cược Tài Xỉu", view=TaiXiuView())
+        if custom_id == "taixiu_menu":
+            from cogs.taixiu import TaiXiuView
+            await interaction.response.edit_message(content="🎲 Chọn cược Tài Xỉu", view=TaiXiuView())
 
-            elif custom_id == "chanle_menu":
-                from cogs.chanle import ChanLeSelectView
-                await interaction.response.edit_message(content="⚪ Chọn cược Chẵn Lẻ", view=ChanLeSelectView())
+        elif custom_id == "chanle_menu":
+            from cogs.chanle import ChanLeSelectView
+            await interaction.response.edit_message(content="⚪ Chọn cược Chẵn Lẻ", view=ChanLeSelectView())
 
-            elif custom_id == "xocdia_menu":
-                from cogs.xocdia import start_xocdia_game
-                await interaction.response.defer()
-                await start_xocdia_game(interaction)
+        elif custom_id == "xocdia_menu":
+            from cogs.xocdia import start_xocdia_game
+            await interaction.response.defer()
+            await start_xocdia_game(interaction)
 
-            elif custom_id.startswith("tx_"):
-                from cogs.taixiu import TaiXiuModal
-                choice = "tai" if custom_id == "tx_tai" else "xiu" if custom_id == "tx_xiu" else custom_id
-                await interaction.response.send_modal(TaiXiuModal(choice))
+        elif custom_id.startswith("tx_"):
+            from cogs.taixiu import TaiXiuModal
+            choice = "tai" if custom_id == "tx_tai" else "xiu" if custom_id == "tx_xiu" else custom_id
+            await interaction.response.send_modal(TaiXiuModal(choice))
 
-            elif custom_id in ["cl_chan", "cl_le"]:
-                from cogs.chanle import ChanLeModal
-                choice = "chan" if custom_id == "cl_chan" else "le"
-                await interaction.response.send_modal(ChanLeModal(choice))
+        elif custom_id in ["cl_chan", "cl_le"]:
+            from cogs.chanle import ChanLeModal
+            choice = "chan" if custom_id == "cl_chan" else "le"
+            await interaction.response.send_modal(ChanLeModal(choice))
 
-            elif custom_id.startswith("back_to_main"):
-                from cogs.menu import MenuView
-                await interaction.response.edit_message(content="🎮 Chọn trò chơi", view=MenuView())
-            else:
-                # Handle unknown interactions
-                await interaction.response.send_message("❌ Tương tác không được hỗ trợ.", ephemeral=True)
+        elif custom_id.startswith("back_to_main"):
+            from cogs.menu import MenuView
+            await interaction.response.edit_message(content="🎮 Chọn trò chơi", view=MenuView())
 
     except discord.NotFound:
         # Interaction expired or doesn't exist, ignore silently
