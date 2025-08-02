@@ -41,11 +41,11 @@ class BetModal(discord.ui.Modal, title="Nhập số tiền cược"):
             try:
                 amount = int(self.children[0].value)
             except ValueError:
-                await interaction.response.send_message("❌ Số tiền không hợp lệ.", ephemeral=True)
+                await interaction.response.send_message("❌ Số xu không hợp lệ.", ephemeral=True)
                 return
 
             if amount <= 0:
-                await interaction.response.send_message("❌ Số tiền phải lớn hơn 0.", ephemeral=True)
+                await interaction.response.send_message("❌ Số xu phải lớn hơn 0.", ephemeral=True)
                 return
 
             # Trừ tiền
@@ -53,7 +53,7 @@ class BetModal(discord.ui.Modal, title="Nhập số tiền cược"):
             user_balance = balances.get(self.user_id, 0)
 
             if user_balance < amount:
-                await interaction.response.send_message("❌ Bạn không đủ tiền.", ephemeral=True)
+                await interaction.response.send_message("❌ Bạn không đủ xu.", ephemeral=True)
                 return
 
             balances[self.user_id] = user_balance - amount

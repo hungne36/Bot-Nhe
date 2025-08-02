@@ -54,7 +54,7 @@ class CuocModal(discord.ui.Modal, title="💰 Nhập số tiền cược"):
 
             balance = get_balance(interaction.user.id)
             if tien > balance:
-                await interaction.response.send_message("❌ Bạn không đủ xu để cược số tiền này!", ephemeral=True)
+                await interaction.response.send_message("❌ Bạn không đủ xu để cược!", ephemeral=True)
                 return
 
             session = active_sessions.get(interaction.channel.id)
@@ -73,12 +73,12 @@ class CuocModal(discord.ui.Modal, title="💰 Nhập số tiền cược"):
 
 class StartButton(discord.ui.Button):
         def __init__(self):
-            super().__init__(label="🎲 Kết thúc & Xóc", style=discord.ButtonStyle.danger)
+            super().__init__(label="🎲 Kết thúc", style=discord.ButtonStyle.danger)
 
         async def callback(self, interaction: discord.Interaction):
             session = active_sessions[interaction.channel.id]
             if interaction.user.id != session["host"]:
-                await interaction.response.send_message("❌ Chỉ người mở phiên mới được kết thúc!", ephemeral=True)
+                await interaction.response.send_message("❌ Bạn không có quyền dùng lệnh này!", ephemeral=True)
                 return
 
             await interaction.response.defer()  # ✅ TRÁNH LỖI UNKNOWN INTERACTION
