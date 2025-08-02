@@ -14,12 +14,14 @@ LEVEL_ROLES = {
 
 def get_level(xp):
   level = 1
-  while xp >= get_needed_xp(level + 1):
+  remaining_xp = xp
+  while remaining_xp >= (50 + level * 25):
+      remaining_xp -= (50 + level * 25)
       level += 1
   return level
 
 def get_needed_xp(level):
-  return 100 * level + 1000
+  return 50 + level * 25
 
 def get_level_role(level):
   keys = sorted(LEVEL_ROLES.keys(), reverse=True)

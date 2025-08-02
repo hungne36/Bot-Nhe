@@ -1,7 +1,7 @@
 import json
 import os
 
-DATA_PATH = "data/xp_data.json"
+DATA_PATH = "data/user_data.json"
 
 def load_data():
     if not os.path.exists(DATA_PATH):
@@ -36,15 +36,12 @@ def add_xp(user_id, xp_amount):
     old_level = user_data["level"]
     user_data["xp"] += xp_amount
 
-    # Calculate level ups
-    new_level = old_level
-    while True:
-        xp_needed = new_level * 100
-        if user_data["xp"] >= xp_needed:
-            user_data["xp"] -= xp_needed
-            new_level += 1
-        else:
-            break
+    # Calculate level using standardized formula
+    new_level = 1
+    total_xp = user_data["xp"]
+    while total_xp >= (50 + new_level * 25):
+        total_xp -= (50 + new_level * 25)
+        new_level += 1
 
     user_data["level"] = new_level
     save_data(data)

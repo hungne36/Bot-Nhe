@@ -32,7 +32,7 @@ class XPTasks(commands.Cog):
             return
 
         user_data = read_json("data/user_data.json")
-        msg_data = read_json("data/xp_messages.json")  # File đếm số tin nhắn
+        # Use daily_messages from user_data instead of separate file
         log = []
 
         for uid, data in user_data.items():
@@ -40,13 +40,19 @@ class XPTasks(commands.Cog):
             if not member:
                 continue
 
-            old_level = get_level(data["xp"])
-            msg_count = msg_data.get(uid, 0)
+            old_level = data.get("level", 1)
+            msg_count = data.get("daily_messages", 0)
 
             # Người không đủ 10 tin → trừ XP + tụt role
             if msg_count < 10:
                 data["xp"] = max(0, data["xp"] - 50)
-                new_level = get_level(data["xp"])
+                # Recalculate level using standardized formula
+                new_level = 1
+                total_xp = data["xp"]
+                while total_xp >= (50 + new_level * 25):
+                    total_xp -= (50 + new_level * 25)
+                    new_level += 1
+                data["level"] = new_level
                 log.append(f"🔻 {member.mention} không hoàn thành nhiệm vụ (gửi {msg_count}/10 tin) → -50 XP.")
 
                 if new_level < old_level:
@@ -64,7 +70,7 @@ class XPTasks(commands.Cog):
 
             # Người vừa đạt mốc level → gán role mới
             else:
-                new_level = get_level(data["xp"])
+                new_level = data.get("level", 1)
                 if new_level > old_level and new_level % 5 == 0:
                     role_info = get_level_role(new_level)
                     if role_info:
@@ -73,9 +79,13 @@ class XPTasks(commands.Cog):
                             await member.add_roles(role_obj)
                             log.append(f"🔺 {member.mention} đã đạt cấp {new_level} → cấp vai trò {role_info[1]}.")
 
-        # Ghi lại data và reset đếm tin nhắn
+        # Reset daily_messages for all users
+        for uid, data in user_data.items():
+            data["daily_messages"] = 0
+            data["daily_bonus_claimed"] = False
+        
+        # Ghi lại data
         write_json("data/user_data.json", user_data)
-        write_json("data/xp_messages.json", {})
 
         # Gửi log thông báo
         if log:
