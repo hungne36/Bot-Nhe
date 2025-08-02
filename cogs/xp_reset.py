@@ -1,16 +1,26 @@
+import discord
+from discord.ext import commands, tasks
+from datetime import datetime, timedelta, timezone
+from utils import xp_manager
 
-# This file is disabled to avoid conflicts with xp_cog.py
-# The main XP system in xp_cog.py handles daily resets properly
+class XPReset(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.daily_reset.start()
 
-# import discord
-# from discord.ext import commands, tasks
-# from datetime import datetime, timedelta, timezone
-# from utils import xp_manager
+    def cog_unload(self):
+        self.daily_reset.cancel()
 
-# class XPReset(commands.Cog):
-#     def __init__(self, bot):
-#         self.bot = bot
-#         # self.daily_reset.start()  # Disabled
+    @tasks.loop(minutes=5)  # Kiểm tra mỗi 5 phút
+    async def daily_reset(self):
+        now = datetime.utcnow()
+        if now.hour == 0 and now.minute < 5:  # 0h UTC = 7h sáng Việt Nam
+            print("[XP RESET] Đang reset daily XP...")
+            xp_manager.reset_all_user_daily_data()
 
-# async def setup(bot):
-#     pass  # Don't load this cog
+    @daily_reset.before_loop
+    async def before_reset(self):
+        await self.bot.wait_until_ready()
+
+async def setup(bot):
+    await bot.add_cog(XPReset(bot))
