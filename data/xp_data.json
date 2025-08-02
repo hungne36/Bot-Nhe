@@ -1,0 +1,25 @@
+{
+  "123456789012345678": {
+    "xp": 3100,
+    "level": 15,
+    "dailyMessages": 9,
+    "lastDailyReward": "2025-08-01",
+    "lastReset": "2025-08-01T00:00:00Z"
+  },
+  "730436357838602301": {
+    "xp": 40,
+    "level": 1,
+    "dailyMessages": 18,
+    "lastDailyReward": "",
+    "lastReset": "2025-08-01",
+    "dailyXPClaimed": false,
+    "missionClaimed": false,
+    "daily_messages": 2
+  },
+  "878488497659453521": {
+    "xp": 2,
+    "level": 1,
+    "daily_messages": 2,
+    "last_xp_time": null
+  }
+}
