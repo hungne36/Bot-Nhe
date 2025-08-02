@@ -1,66 +1,56 @@
+
 import discord
 from discord.ext import commands
 from discord import app_commands
-import json
+from utils.data_manager import read_json, write_json
+from datetime import datetime
 import random
-from datetime import datetime, timedelta, timezone
-import os
 
-# Đường dẫn file dữ liệu người dùng
-DATA_PATH = "data/user_data.json"
-
-# Load dữ liệu từ file
-def load_data():
-    if not os.path.exists(DATA_PATH):
-        return {}
-    with open(DATA_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-# Lưu dữ liệu vào file
-def save_data(data):
-    with open(DATA_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-# Tạo danh sách phần thưởng hiếm
 def get_random_reward(level):
-    rewards = [
-        {"name": "Pet Ticket 🎟️", "type": "item"},
-        {"name": "Loot Box 🎁", "type": "item"},
-        {"name": "XP Booster ⚡", "type": "item"},
-        {"name": "Pet Attractor 🧲", "type": "item"},
-        {"name": "500 Xu 💰", "type": "currency", "amount": 500},
-        {"name": "Rename Token 📝", "type": "item"}
-    ]
-    if level < 40:
-        rewards.append({"name": "1 Level Up ⬆️", "type": "level"})
-
+    """Generate random reward based on user level"""
+    rewards = []
+    
+    # Currency rewards
+    base_amount = 100 + (level * 50)
+    rewards.extend([
+        {"name": f"{base_amount} xu", "amount": base_amount, "type": "currency"},
+        {"name": f"{base_amount * 2} xu", "amount": base_amount * 2, "type": "currency"},
+        {"name": f"{base_amount // 2} xu", "amount": base_amount // 2, "type": "currency"}
+    ])
+    
+    # Level-based special rewards
+    if level >= 10:
+        rewards.append({"name": "Bonus XP", "amount": 100, "type": "xp"})
+    if level >= 20:
+        rewards.append({"name": "Premium Item", "amount": 1, "type": "item"})
+    
     return random.choice(rewards)
 
 class Mission(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="mission", description="Nhận vật phẩm hiếm nếu bạn đủ 30 XP/ngày!")
+    @app_commands.command(name="mission", description="Nhận phần thưởng nếu bạn đủ 30 XP/ngày!")
     async def mission(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         now = datetime.utcnow()
         today_str = now.strftime("%Y-%m-%d")
 
-        data = load_data()
+        data = read_json("data/user_data.json")
         user = data.get(user_id)
 
         if not user:
-            await interaction.response.send_message("Bạn chưa có dữ liệu người dùng.", ephemeral=True)
+            await interaction.response.send_message("❌ Bạn chưa có dữ liệu người dùng.", ephemeral=True)
             return
 
         # Kiểm tra đã nhận hôm nay chưa
         if user.get("lastMission") == today_str:
-            await interaction.response.send_message("Bạn đã nhận phần thưởng nhiệm vụ hôm nay rồi.", ephemeral=True)
+            await interaction.response.send_message("❌ Bạn đã nhận phần thưởng nhiệm vụ hôm nay rồi.", ephemeral=True)
             return
 
-        # Kiểm tra đủ XP chưa
-        if user.get("dailyXP", 0) < 30:
-            await interaction.response.send_message("Bạn cần cày ít nhất 30 XP hôm nay để nhận phần thưởng!", ephemeral=True)
+        # Kiểm tra đủ điều kiện (daily messages >= 10)
+        if user.get("daily_messages", 0) < 10:
+            await interaction.response.send_message("❌ Bạn cần gửi ít nhất 10 tin nhắn hôm nay để nhận phần thưởng!", ephemeral=True)
             return
 
         # Random phần thưởng
@@ -70,18 +60,22 @@ class Mission(commands.Cog):
         # Cập nhật dữ liệu theo phần thưởng
         if reward["type"] == "currency":
             user["balance"] = user.get("balance", 0) + reward["amount"]
-        elif reward["type"] == "level":
-            user["level"] += 1
-            user["xp"] += 100  # Cho thêm XP tương ứng
-        else:
-            user.setdefault("items", []).append(reward["name"])
+        elif reward["type"] == "xp":
+            user["xp"] = user.get("xp", 0) + reward["amount"]
+        elif reward["type"] == "item":
+            if "items" not in user:
+                user["items"] = []
+            user["items"].append(reward["name"])
 
         user["lastMission"] = today_str
-        save_data(data)
+        write_json("data/user_data.json", data)
 
-        await interaction.response.send_message(
-            f"🎉 Bạn đã nhận được **{reward['name']}** từ nhiệm vụ hôm nay!", ephemeral=True
+        embed = discord.Embed(
+            title="🎁 Nhiệm vụ hoàn thành!",
+            description=f"Bạn đã nhận: **{reward['name']}**",
+            color=discord.Color.green()
         )
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Mission(bot))

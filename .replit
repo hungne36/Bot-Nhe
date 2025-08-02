@@ -18,3 +18,15 @@ externalPort = 5000
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[workflows]
+runButton = "Start Bot"
+
+[[workflows.workflow]]
+name = "Start Bot"
+author = 43938313
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"

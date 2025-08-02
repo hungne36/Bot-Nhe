@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord import app_commands
 from keep_alive import keep_alive
 from datetime import datetime
-from utils import xp_manager
+# XP management is handled by cogs/xp_cog.py
 import discord
 
 # Biến toàn cục để khóa /menu
