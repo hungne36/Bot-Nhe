@@ -76,8 +76,18 @@ async def on_message(message):
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
     try:
+        # Skip if interaction is already handled by commands
+        if interaction.type == discord.InteractionType.application_command:
+            return
+            
         if interaction.type == discord.InteractionType.component:
             custom_id = interaction.data.get("custom_id")
+            
+            # Check if interaction is expired or invalid
+            if not custom_id:
+                if not interaction.response.is_done():
+                    await interaction.response.send_message("❌ Tương tác không hợp lệ.", ephemeral=True)
+                return
 
             if custom_id == "taixiu_menu":
                 from cogs.taixiu import TaiXiuView
@@ -104,7 +114,19 @@ async def on_interaction(interaction: discord.Interaction):
             elif custom_id.startswith("back_to_main"):
                 from cogs.menu import MenuView
                 await interaction.response.edit_message(content="🎮 Chọn trò chơi", view=MenuView())
+            else:
+                # Handle unknown interactions
+                if not interaction.response.is_done():
+                    await interaction.response.send_message("❌ Tương tác không được hỗ trợ.", ephemeral=True)
 
+    except discord.NotFound:
+        # Interaction expired or doesn't exist, ignore silently
+        print("🟡 Interaction expired or not found - ignoring")
+        pass
+    except discord.InteractionResponded:
+        # Interaction already responded to
+        print("🟡 Interaction already responded")
+        pass
     except Exception as e:
         print("🔴 Interaction error:", e)
         try:
