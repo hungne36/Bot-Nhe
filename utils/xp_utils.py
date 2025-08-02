@@ -29,7 +29,7 @@ def get_level_role(level):
   return None
 
 def get_xp_for_next_level(level):
-  return get_needed_xp(level + 1)
+    return 100 + level * 100  # hoặc công thức bạn đã dùng để tăng độ khó
 
 def get_role_for_level(level):
   role_info = get_level_role(level)
@@ -38,24 +38,12 @@ def get_role_for_level(level):
   return {"icon": "🧍‍♂️", "name": "Dân thường"}
 
 def get_rank(user_id):
-  from utils.data_manager import read_json
-  
-  user_data = read_json("data/user_data.json")
-  if not user_data:
-      return 1, 1
-  
-  # Tạo danh sách user và XP để sắp xếp
-  user_list = []
-  for uid, data in user_data.items():
-      xp = data.get("xp", 0)
-      user_list.append((uid, xp))
-  
-  # Sắp xếp theo XP giảm dần
-  user_list.sort(key=lambda x: x[1], reverse=True)
-  
-  # Tìm vị trí của user
-  for i, (uid, xp) in enumerate(user_list):
-      if uid == user_id:
-          return i + 1, len(user_list)
-  
-  return len(user_list), len(user_list)
+    from utils.data_manager import read_json
+    
+    data = read_json("data/user_data.json")
+    rankings = sorted(data.items(), key=lambda x: x[1].get("xp", 0), reverse=True)
+    total = len(rankings)
+    for index, (uid, _) in enumerate(rankings, start=1):
+        if uid == str(user_id):
+            return index, total
+    return total, total  # fallback nếu không tìm thấy
