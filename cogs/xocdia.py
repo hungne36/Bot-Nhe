@@ -134,7 +134,10 @@ class XocDiaView(discord.ui.View):
 
 async def start_xocdia_game(interaction: discord.Interaction):
         if interaction.channel.id in active_sessions:
-            await interaction.response.send_message("❌ Đã có phiên Xóc Đĩa đang diễn ra!", ephemeral=True)
+            if not interaction.response.is_done():
+                await interaction.response.send_message("❌ Đã có phiên Xóc Đĩa đang diễn ra!", ephemeral=True)
+            else:
+                await interaction.followup.send("❌ Đã có phiên Xóc Đĩa đang diễn ra!", ephemeral=True)
             return
 
         view = XocDiaView()
@@ -145,7 +148,10 @@ async def start_xocdia_game(interaction: discord.Interaction):
             "cuoc": {},
             "view": view
         }
-        await interaction.followup.send("✅ Phiên Xóc Đĩa đã bắt đầu!", ephemeral=True)
+        if not interaction.response.is_done():
+            await interaction.response.send_message("✅ Phiên Xóc Đĩa đã bắt đầu!", ephemeral=True)
+        else:
+            await interaction.followup.send("✅ Phiên Xóc Đĩa đã bắt đầu!", ephemeral=True)
 
 class KetThucButton(discord.ui.Button):
     def __init__(self, game_type):

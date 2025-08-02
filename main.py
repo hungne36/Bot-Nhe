@@ -76,8 +76,8 @@ async def on_message(message):
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
     try:
-        # Skip if interaction is already handled by commands
-        if interaction.type == discord.InteractionType.application_command:
+        # Skip if interaction is already handled by commands or if response is already done
+        if interaction.type == discord.InteractionType.application_command or interaction.response.is_done():
             return
             
         if interaction.type == discord.InteractionType.component:
@@ -85,8 +85,7 @@ async def on_interaction(interaction: discord.Interaction):
             
             # Check if interaction is expired or invalid
             if not custom_id:
-                if not interaction.response.is_done():
-                    await interaction.response.send_message("❌ Tương tác không hợp lệ.", ephemeral=True)
+                await interaction.response.send_message("❌ Tương tác không hợp lệ.", ephemeral=True)
                 return
 
             if custom_id == "taixiu_menu":
@@ -99,6 +98,7 @@ async def on_interaction(interaction: discord.Interaction):
 
             elif custom_id == "xocdia_menu":
                 from cogs.xocdia import start_xocdia_game
+                await interaction.response.defer()
                 await start_xocdia_game(interaction)
 
             elif custom_id.startswith("tx_"):
@@ -116,26 +116,16 @@ async def on_interaction(interaction: discord.Interaction):
                 await interaction.response.edit_message(content="🎮 Chọn trò chơi", view=MenuView())
             else:
                 # Handle unknown interactions
-                if not interaction.response.is_done():
-                    await interaction.response.send_message("❌ Tương tác không được hỗ trợ.", ephemeral=True)
+                await interaction.response.send_message("❌ Tương tác không được hỗ trợ.", ephemeral=True)
 
     except discord.NotFound:
         # Interaction expired or doesn't exist, ignore silently
         print("🟡 Interaction expired or not found - ignoring")
-        pass
     except discord.InteractionResponded:
         # Interaction already responded to
         print("🟡 Interaction already responded")
-        pass
     except Exception as e:
         print("🔴 Interaction error:", e)
-        try:
-            if not interaction.response.is_done():
-                await interaction.response.send_message("❌ Lỗi xử lý tương tác.", ephemeral=True)
-            else:
-                await interaction.followup.send("❌ Lỗi xử lý tương tác.", ephemeral=True)
-        except:
-            pass
 
 @tree.command(name="ping", description="🏓 Pong check")
 async def ping(interaction: discord.Interaction):
