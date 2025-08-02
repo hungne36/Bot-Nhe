@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-import jsonfrom datetime import datetime, timedelta
+import json
+from datetime import datetime, timedelta
 
 DATA_PATH = "data/user_data.json"
 

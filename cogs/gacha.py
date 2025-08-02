@@ -49,7 +49,7 @@ class GachaButton(discord.ui.Button):
 
             obtained = []
             for _ in range(self.count):
-                idx = random.choices(range(len(PET_LIST)), weights=WEIGHTS, k=1)[0-]
+                idx = random.choices(range(len(PET_LIST)), weights=WEIGHTS, k=1)[0]
                 name, emoji, pct = PET_LIST[idx]
                 obtained.append((name, emoji, pct))
                 if name not in owned:
