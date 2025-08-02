@@ -38,10 +38,21 @@ class Giveaway(commands.Cog):
                 return await interaction.response.send_message("❌ Chỉ admin!", ephemeral=True)
             if not self.current:
                 return await interaction.response.send_message("❌ Không có giveaway mở.", ephemeral=True)
+            
             ch = self.bot.get_channel(GIVEAWAY_CHANNEL_ID)
-            msg = await ch.fetch_message(self.current["msg_id"])
-            await self._payout(ch, msg)
-            await interaction.response.send_message("✅ Đã đóng giveaway!", ephemeral=True)
+            if ch is None:
+                return await interaction.response.send_message("❌ Không tìm thấy kênh giveaway.", ephemeral=True)
+            
+            try:
+                msg = await ch.fetch_message(self.current["msg_id"])
+                await self._payout(ch, msg)
+                await interaction.response.send_message("✅ Đã đóng giveaway!", ephemeral=True)
+            except discord.NotFound:
+                # Message was deleted, clear current giveaway and inform admin
+                self.current = None
+                await interaction.response.send_message("❌ Tin nhắn giveaway đã bị xóa. Đã reset trạng thái giveaway.", ephemeral=True)
+            except Exception as e:
+                await interaction.response.send_message(f"❌ Lỗi: {str(e)}", ephemeral=True)
 
         async def start_giveaway(self, channel):
             embed = discord.Embed(
