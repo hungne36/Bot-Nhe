@@ -1,19 +1,10 @@
 {
   "730436357838602301": {
-    "xp": 2000,
+    "xp": 9,
     "level": 1,
-    "balance": 0,
-    "dailyXP": 0,
-    "lastMission": "",
-    "messages": 0,
-    "items": [],
-    "lastMessage": null,
-    "lastDaily": null,
-    "lastDailyXP": null,
-    "xpBoostExpire": null,
-    "daily_messages": 0,
+    "daily_messages": 5,
     "daily_bonus_claimed": false,
-    "last_reset_date": null,
-    "last_message_ts": null
+    "last_message_ts": 1754344514.7369335,
+    "last_reset_date": "2025-08-04"
   }
 }
